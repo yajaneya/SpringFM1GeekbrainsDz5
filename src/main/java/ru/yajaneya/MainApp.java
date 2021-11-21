@@ -1,5 +1,8 @@
 package ru.yajaneya;
 
+import ru.yajaneya.dao.ProductDao;
+import ru.yajaneya.dao.ProductDaoImpl;
+import ru.yajaneya.entities.Product;
 import ru.yajaneya.utils.SessionFactoryUtils;
 
 public class MainApp {
@@ -9,17 +12,22 @@ public class MainApp {
 
         factory.init();
 
-        factory.getSession().beginTransaction();
+        ProductDao productDao = new ProductDaoImpl(factory);
 
-        factory.getSession()
-                .createQuery("from Product")
-                .getResultList()
-                .forEach(p -> System.out.println(p));
-
-        factory.getSession().getTransaction().commit();
-
+        printList(productDao);
+        productDao.deleteById(3L);
+        printList(productDao);
+        Product product = productDao.findById(2L);
+        product.setTitle("Potato");
+        product.setPrice(60);
+        productDao.saveOrUpdate(product);
+        printList(productDao);
 
         factory.shutdown();
 
+    }
+
+    private static void printList(ProductDao productDao) {
+        productDao.findAll().forEach(product -> System.out.println(product));
     }
 }
